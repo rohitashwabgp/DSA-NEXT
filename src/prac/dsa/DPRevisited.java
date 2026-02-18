@@ -1,5 +1,7 @@
 package prac.dsa;
 
+import jdk.jshell.Snippet;
+
 import java.util.*;
 
 public class DPRevisited {
@@ -193,6 +195,56 @@ public class DPRevisited {
 
         memo.put(start, result);
         return result;
+    }
+
+
+    public boolean canPartitionKSubsets(int[] nums, int k) {
+        int sum = 0;
+        for (int n : nums) sum = sum + n;
+        if (sum % k != 0) return false;
+        int target = sum / k;
+        Arrays.sort(nums);
+        if (nums[nums.length - 1] > target) return false;
+        boolean[] used = new boolean[nums.length];
+        return backtrack(nums, used, k, 0, 0, target);
+    }
+
+    private boolean backtrack(int[] nums, boolean[] used, int k, int start, int currSum, int target) {
+        if (k == 1) return true;  // last bucket automatically valid
+        if (currSum == target) return backtrack(nums, used, k - 1, 0, 0, target);
+        for (int i = start; i < nums.length; i++) {
+            if (used[i]) continue;
+            if (currSum + nums[i] > target) continue;
+            used[i] = true;
+            if (backtrack(nums, used, k, i + 1, currSum + nums[i], target)) return true;
+            used[i] = false;
+            if (currSum == 0) break; // strong pruning
+        }
+        return false;
+    }
+
+    private static boolean partition(int[] nums) {
+        int sum = Arrays.stream(nums).sum();
+        if (sum % 2 != 0) return false;
+        int target = sum / 2;
+        boolean[] dp = new boolean[nums.length + 1];
+        boolean[] visited = new boolean[nums.length + 1];
+        return recursion(target, sum, 0, nums, dp, visited);
+    }
+
+    private static boolean recursion(int target, int sum, int index, int[] nums, boolean[] dp, boolean[] visited) {
+        if (sum == target) return dp[index] = true;
+        if (index >= nums.length) return dp[index] = false;
+        if (dp[index]) return dp[index];
+        for (int i = index; i < nums.length; i++) {
+            if (visited[i]) continue;
+            visited[i] = true;
+            dp[i] = recursion(target, sum + nums[index], index + 1, nums, dp, visited);
+            if (dp[i]) return true;
+            visited[i] = false;
+            if (sum == 0) break;
+        }
+        return false;
     }
 
 
