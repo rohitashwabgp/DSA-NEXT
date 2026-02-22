@@ -5,7 +5,66 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class MinStack {
+
+import java.util.*;
+
+
+public static int minOperations(int[] A, int K) {
+    int N = A.length;
+
+    // value -> list of positions
+    Map<Integer, List<Integer>> map = new HashMap<>();
+    for (int i = 0; i < N; i++) {
+        map.computeIfAbsent(A[i], k -> new ArrayList<>()).add(i);
+    }
+
+    // unique values sorted descending
+    List<Integer> vals = new ArrayList<>(map.keySet());
+    vals.sort(Collections.reverseOrder());
+
+    int ans = N / K; // case: choose X > all elements
+    int greaterCount = 0;
+
+    for (int x : vals) {
+        List<Integer> pos = map.get(x);
+
+        int gapCost = 0;
+        int prev = -1;
+
+        for (int p : pos) {
+            int L = p - prev - 1;
+            gapCost += L / K;
+            prev = p;
+        }
+
+        int tail = N - prev - 1;
+        gapCost += tail / K;
+
+        ans = Math.min(ans, greaterCount + gapCost);
+
+        greaterCount += pos.size();
+    }
+
+    return ans;
+}
+
+public int poorPigs(int buckets, int minutesToDie, int minutesToTest) {
+
+    int states = minutesToTest / minutesToDie + 1;
+
+    int pigs = 0;
+    double power = 1;
+
+    while(power < buckets){
+        pigs++;
+        power = power * states;
+    }
+
+    return pigs;
+}
+
+
+public static class MinStack {
     static class Node {
         public Node next;
         public Node prev;
